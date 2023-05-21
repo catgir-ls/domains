@@ -1,0 +1,9 @@
+{
+  "imports": {
+    "@types": "./types/mod.ts",
+    "@deps": "./deps.ts",
+
+    "@lib": "./lib/mod.ts",
+    "@util": "./util/mod.ts"
+  }
+}

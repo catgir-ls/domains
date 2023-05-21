@@ -1,0 +1,21 @@
+# List of domains which aren't on the specified Cloudflare account
+domains = [ "example.com" ]
+
+# DNS server to query for MX records
+nameserver = "8.8.8.8"
+
+emojis = [ "<ONLINE>", "<OFFLINE>" ]
+
+[cloudflare]
+api_key = ""
+
+[mx]
+# Exchange FQDN - please ensure there is a trailing period
+exchange = "box.example.com."
+
+# Preference (usually 10)
+preference = 10
+
+[webhook]
+url = ""
+message_id = ""
