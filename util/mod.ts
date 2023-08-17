@@ -4,6 +4,7 @@
 
 // Utils
 import Config from "./Config.ts";
+import Logger from "./Logger.ts";
 import Webhook from "./Webhook.ts";
 
-export { Config, Webhook };
+export { Config, Logger, Webhook };

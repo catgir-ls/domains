@@ -19,3 +19,8 @@ preference = 10
 [webhook]
 url = ""
 message_id = ""
+
+[redis]
+hostname = ""
+port = 6379
+password = ""

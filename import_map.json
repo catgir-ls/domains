@@ -4,6 +4,7 @@
     "@deps": "./deps.ts",
 
     "@lib": "./lib/mod.ts",
-    "@util": "./util/mod.ts"
+    "@util": "./util/mod.ts",
+    "@redis": "./redis/mod.ts"
   }
 }

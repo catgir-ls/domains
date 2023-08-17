@@ -3,34 +3,65 @@
  */
 
 // Utils
-import { Config, Webhook } from "@util";
+import { Config, Logger, Webhook } from "@util";
 
 // Lib
 import { Cloudflare, DNS } from "@lib";
 
+// Data
+import Redis from "@redis";
+
+// Types
+import type { RedisConnectOptions } from "@types";
+
 // Config
-await Config.load(Deno.env.get("CONFIG") ?? "config.toml");
+const config = Deno.env.get("CONFIG") ?? (
+  Deno.env.get("ENVIRONMENT") === "development"
+    ? "config.dev.toml"
+    : "config.toml"
+);
+
+await Config.load(config);
+
+Logger.log(`Loaded ${Object.keys(Config.get()).length} item(s) into the config!`);
+
+// Redis
+if(!await Redis.init(Config.get<RedisConnectOptions>("redis"))) {
+  Logger.error("Unable to connect to the Redis instance - please check credentials!");
+
+  Deno.exit();
+}
+
+Logger.log("Succesfully connected to Redis!");
 
 // Variables
 const cloudflare = new Cloudflare(
-  Config.get("cloudflare", "api_key")
+  Config.get<string>("cloudflare", "api_key")
 );
 
 const webhook = new Webhook(
-  Config.get("webhook", "url"),
-  Config.get("webhook", "message_id")
-)
+  Config.get<string>("webhook", "url"),
+  Config.get<string>("webhook", "message_id")
+);
 
-const main = async () => {
-  const domains = [
-    ...Config.get("domains"),
-    ...await cloudflare.getDomains()
-  ].sort((a, b) => b.length - a.length);
+const domains = [
+  ...Config.get("domains"),
+  ...await cloudflare.getDomains()
+].sort((a, b) => b.length - a.length);
 
-  const result = await Promise.all(domains.map(DNS.isValidMX));
-  const status = Object.fromEntries(domains.map((domain: string, i: number) => [ domain, result[i] ]));
+Logger.log(`Checking ${domains.length} ${domains.length === 1 ? "domain" : "domains"}!`);
 
-  webhook.update(status);
+const result = await Promise.all(domains.map(DNS.isValidMX));
+const status = Object.fromEntries(domains.map((domain: string, i: number) => [ domain, result[i] ]));
+
+Logger.log(`${Object.keys(status).filter((key: string) => !!status[key]).length}/${Object.keys(status).length} domains are valid!`);
+
+webhook.update(status);
+
+if(await Redis.set("domains", JSON.stringify(status)) !== "OK") {
+  Logger.error("Unable to cache domains - Redis returned non-OK response!");
+
+  Deno.exit();
 }
 
-main();
+Logger.log("Succesfully cached domains!");

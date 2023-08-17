@@ -3,4 +3,5 @@
  */
 
 // Dependencies
-export { parse } from "https://deno.land/std@0.156.0/encoding/toml.ts";
+export { parse } from "https://deno.land/std@0.198.0/toml/mod.ts";
+export { connect } from "https://deno.land/x/redis@v0.31.0/mod.ts";

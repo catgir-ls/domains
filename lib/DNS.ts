@@ -12,14 +12,18 @@ class DNS {
   public static isValidMX = async (domain: string) => {
     const { exchange, preference } = Config.get("mx");
 
-    const mx = await Deno.resolveDns(domain, "MX", {
-      nameServer: { ipAddr: Config.get("nameserver"), port: 53 }
-    });
-
-    for(const record of mx) {
-      if(record.preference === preference && record.exchange === exchange)
-        continue;
-
+    try {
+      const mx = await Deno.resolveDns(domain, "MX", {
+        nameServer: { ipAddr: Config.get("nameserver"), port: 53 }
+      });
+  
+      for(const record of mx) {
+        if(record.preference === preference && record.exchange === exchange)
+          continue;
+  
+        return false;
+      }  
+    } catch {
       return false;
     }
 

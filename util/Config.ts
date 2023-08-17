@@ -6,17 +6,17 @@
 import { parse } from "@deps";
 
 // Types
-import type { Object, Ret } from "@types";
+import type { Obj, Ret } from "@types";
 
 // Config Class
 class Config {
-  private static config: Object | null = null;
+  private static config: Obj | null = null;
 
   public static load = async (path: string): Promise<void> => {
     this.config = parse(await Deno.readTextFile(path));
   };
 
-  public static get = (key?: string, value?: string): Ret => {
+  public static get = <T>(key?: string, value?: string): T | Ret => {
     if(!this.config || !key || (!key && !value))
       return this.config;
 
@@ -38,7 +38,7 @@ class Config {
       _value = _value[entry];
     }
 
-    return _value[value];
+    return <T>_value[value];
   }
 }
 
